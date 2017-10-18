@@ -65,6 +65,9 @@ class User
     Reply.find_by_user_id(@id)
   end
 
+  def followed_questions
+    Question_Follow.followed_questions_for_user_id(@id)
+  end
 
 end
 
@@ -132,6 +135,9 @@ class Question
     Reply.find_by_question_id(@id)
   end
 
+  def followers
+    Question_Follow.followers_for_question_id(@id)
+  end
 
 end
 
@@ -167,19 +173,40 @@ class Question_Follow
   end
 
   def self.followers_for_question_id(question_id)
+    raise "#{self} is not in database" unless question_id
+
     people = QuestionDBConnection.instance.execute(<<-SQL, question_id)
       SELECT
-        fname, lname
+        *
       FROM
         users
       JOIN
         question_follows ON question_follows.user_id = users.id
       WHERE
-        question_id = ?
+        question_follows.question_id = ?
     SQL
     return nil if people.empty?
 
     people.map { |person| User.new(person) }
+  end
+
+  def self.followed_questions_for_user_id(user_id)
+    raise "#{self} is not in database" unless user_id
+
+    questions = QuestionDBConnection.instance.execute(<<-SQL, user_id)
+      SELECT
+        *
+      FROM
+        questions
+      JOIN
+        question_follows ON question_follows.question_id = questions.id
+      WHERE
+        question_follows.user_id = ?
+    SQL
+    return nil if questions.empty?
+
+    questions.map { |question| Question.new(question) }
+  end
 end
 
 # ----------------

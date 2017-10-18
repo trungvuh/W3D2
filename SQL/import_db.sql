@@ -14,7 +14,7 @@ CREATE TABLE questions (
   id INTEGER PRIMARY KEY,
   title VARCHAR(255) NOT NULL,
   body TEXT NOT NULL,
-  user_id INTEGER NOT NULL,
+  user_id INTEGER NOT NULL, --who is the author of the question
 
   FOREIGN KEY (user_id) REFERENCES users(id)
 );
@@ -22,7 +22,7 @@ CREATE TABLE questions (
 CREATE TABLE question_follows (
   id INTEGER PRIMARY KEY,
   question_id INTEGER NOT NULL,
-  user_id INTEGER NOT NULL,
+  user_id INTEGER NOT NULL, --who follow which question
 
   FOREIGN KEY (question_id) REFERENCES questions(id),
   FOREIGN KEY (user_id) REFERENCES users(id)
